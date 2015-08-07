@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Target Name="EnsureBower">
+        <PropertyGroup>
+            <BowerNotFoundError>Bower module not found. Please install Bower in the node module path '$(NodeModulePath)'.</BowerNotFoundError>
+            <BowerExecutable>..\..\packages\Betclic.BuildTools.Node.1.0.4\bower.cmd</BowerExecutable>
+            <BowerExitCode>0</BowerExitCode>
+        </PropertyGroup>
+        <Message Text="Ensuring Bower is installed" Importance="low" />
+
+        <Error Condition=" '$(BowerExitCode)' != '0' " Text="'$(BowerNotFoundError)'" />
+
+        <PropertyGroup>
+            <RunBowerCmd>$(EnsureNodeInPathCmd) "$(BowerExecutable)" $(BowerCommand)</RunBowerCmd>
+        </PropertyGroup>
+
+        <Message Text="Bower found: '$(BowerExecutable)'" />
+    </Target>
+
+    <Target Name="RunBower"
+        DependsOnTargets="EnsureNodeModules;EnsureBower"
+        BeforeTargets="BeforeBuild"
+        Condition=" Exists('$(BowerFile)') ">
+        <Exec Command="$(RunBowerCmd)"
+            CustomErrorRegularExpression="E[A-Z]+"/>
+    </Target>
+<!-- vim: set ft=xml sw=4 :-->
+</Project>
