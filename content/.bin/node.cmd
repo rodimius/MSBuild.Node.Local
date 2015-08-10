@@ -1,3 +1,3 @@
 @echo off
 SET PATH=%PATH%;%~dp0
-"%~dp0..\..\packages\Betclic.BuildTools.Node.1.0.4\node.exe" %*
+"%~dp0..\..\packages\MSBuild.Node.Local.1.0.0\node.exe" %*
