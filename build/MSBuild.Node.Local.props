@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<PropertyGroup>
+  <PackageName>MSBuild.Node.Local.1.0.0</PackageName>
+</PropertyGroup>
 
 <!-- node start -->
     <PropertyGroup>
-        <GlobalNodePath>$(NODEJS)</GlobalNodePath>
-        <GlobalNodeModulePath>$(HOMEDRIVE)$(HOMEPATH)\AppData\Roaming\npm</GlobalNodeModulePath>
+        <GlobalNodePath>$(MSBuildProjectDirectory)\..\..\$(PackageName)\</GlobalNodePath>
+        <GlobalNodeModulePath>$(MSBuildProjectDirectory)\..\..\$(PackageName)\</GlobalNodeModulePath>
         <LocalNodePath></LocalNodePath>
         <LocalNodeModulePath></LocalNodeModulePath>
         <NodePath>$(GlobalNodePath)</NodePath>
@@ -32,8 +35,7 @@
         <GruntFile>$(MSBuildProjectDirectory)\Gruntfile.js</GruntFile>
         <GruntWorkingDirectory>$(MSBuildProjectDirectory)</GruntWorkingDirectory>
         <GruntBuildTask>build-$(Configuration)</GruntBuildTask>
-        <GruntCleanTask></GruntCleanTask>
-
+        <GruntCleanTask>clean</GruntCleanTask>
         <!-- Deprecated -->
         <GruntTask></GruntTask>
     </PropertyGroup>

@@ -38,14 +38,6 @@
             <NodeModulePath>$(LocalNodeModulePath)</NodeModulePath>
         </PropertyGroup>
 
-        <Exec Command="$(WINDIR)\system32\cmd.exe /C $(NpmGetPrefix)"
-            ContinueOnError="true"
-            IgnoreExitCode="true"
-            ConsoleToMsBuild="true"
-            Condition=" !Exists('$(NodeModulePath)') ">
-            <Output TaskParameter="ExitCode" PropertyName="NpmExitCode"/>
-            <Output TaskParameter="ConsoleOutput" PropertyName="NodeModulePath" />
-        </Exec>
         <Error Condition=" '$(NodeModulePath)' == '' " Text="$(UnknownNodeModulePath)" />
         <Error Condition=" !Exists('$(NodeModulePath)') " Text="$(InvalidGlobalNodeModulePath) $(NodeModulePath)" />
 
@@ -72,7 +64,7 @@
 <Target Name="EnsureBower">
     <PropertyGroup>
         <BowerNotFoundError>Bower module not found. Please install Bower in the node module path '$(NodeModulePath)'.</BowerNotFoundError>
-        <BowerExecutable>..\..\packages\MSBuild.Node.Local.1.0.0\bower.cmd</BowerExecutable>
+        <BowerExecutable>..\..\packages\$(GlobalNodeModulePath)\.bin\bower.cmd</BowerExecutable>
         <BowerExitCode>0</BowerExitCode>
     </PropertyGroup>
     <Message Text="Ensuring Bower is installed" Importance="low" />
@@ -99,21 +91,12 @@
 <Target Name="EnsureGrunt">
     <PropertyGroup>
         <GruntNotFoundError>Grunt module not found. Please install Grunt in the node module path '$(NodeModulePath)'.</GruntNotFoundError>
-        <GruntExecutable>$(NodeModulePath)\grunt.cmd</GruntExecutable>
+        <GruntExecutable>$(GloabalNodeModulePath)\.bin\grunt.cmd</GruntExecutable>
         <GruntOut>$([System.IO.Path]::GetTempFileName())</GruntOut>
         <GruntExitCode>0</GruntExitCode>
         <GruntTaskDeprecationWarning>The 'GruntTask' property is deprecated and will be removed in a future version. Please use 'GruntBuildTask' instead.</GruntTaskDeprecationWarning>
     </PropertyGroup>
     <Message Text="Ensuring Grunt is installed" Importance="low" />
-
-    <Exec Command="$(WINDIR)\system32\where.exe grunt"
-        ContinueOnError="true"
-        IgnoreExitCode="true"
-        ConsoleToMsBuild="true"
-        Condition=" !Exists('$(GruntExecutable)') ">
-        <Output TaskParameter="ExitCode" PropertyName="GruntExitCode" />
-        <Output TaskParameter="ConsoleOutput" PropertyName="GruntExecutable" />
-    </Exec>
     <Error Condition=" '$(GruntExitCode)' != '0' " Text="'$(GruntNotFoundError)'" />
 
     <!-- Deprecated Warning & Fallback -->
