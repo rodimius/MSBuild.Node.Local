@@ -2,7 +2,6 @@
   "name": "msbuild-node-local",
   "version": "1.0.0",
   "description": "Local Node installation for MSBuild.",
-  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,9 +15,15 @@
     "local"
   ],
   "author": "Robert Elm",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/rodimius/MSBuild.Node.Local/issues"
   },
-  "homepage": "https://github.com/rodimius/MSBuild.Node.Local#readme"
+  "homepage": "https://github.com/rodimius/MSBuild.Node.Local#readme",
+  "devDependencies": {
+    "bower": "^1.4.1",
+    "flatten-packages": "^0.1.4",
+    "grunt-cli": "^0.1.13",
+    "npm": "^2.13.4",
+    "rimraf": "^2.4.2"
+  }
 }

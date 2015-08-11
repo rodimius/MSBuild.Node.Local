@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
-<package >
+<package>
   <metadata>
-    <id>Package</id>
+    <id>MSBuild.Node.Local</id>
     <version>1.0.0</version>
     <authors>robert.elm</authors>
     <owners>robert.elm</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>A project local Node install, with NPM.</description>
-    <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
+    <description>A project local Node install, with NPM, Bower, and Grunt.</description>
+    <releaseNotes>Initial release.</releaseNotes>
     <copyright>Copyright 2015</copyright>
-    <tags>Node NPM</tags>
+    <tags>Node NPM MSBuild Bower Grunt-cli Grunt</tags>
     <dependencies>
     </dependencies>
   </metadata>

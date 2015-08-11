@@ -2,44 +2,172 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 <!-- node start -->
-    <PropertyGroup>
-        <GlobalNodePath>$(NODEJS)</GlobalNodePath>
-        <GlobalNodeModulePath>$(HOMEDRIVE)$(HOMEPATH)\AppData\Roaming\npm</GlobalNodeModulePath>
-        <LocalNodePath></LocalNodePath>
-        <LocalNodeModulePath></LocalNodeModulePath>
-        <NodePath>$(GlobalNodePath)</NodePath>
-        <NodeModulePath>$(GlobalNodeModulePath)</NodeModulePath>
-    </PropertyGroup>
+    <Target Name="EnsureNode">
+        <PropertyGroup>
+            <UnknownNodePath>Global NodeJS installation not found. Please set the 'NODEJS' environment variable for a global installation or set the 'LocalNodePath' property in your project file for a local installation.</UnknownNodePath>
+            <InvalidGlobalNodePath>Invalid global node path.</InvalidGlobalNodePath>
+            <InvalidLocalNodePath>Invalid local node path.</InvalidLocalNodePath>
+            <EnsureNodeInPathCmd></EnsureNodeInPathCmd>
+        </PropertyGroup>
+        <Message Text="Ensuring NodeJS is installed" Importance="low" />
+
+        <Error Condition=" '$(LocalNodePath)' != '' AND !Exists('$(LocalNodePath)')" Text="$(InvalidLocalNodePath) $(LocalNodePath)" />
+        <PropertyGroup Condition=" '$(LocalNodePath)' != '' ">
+            <NodePath>$(LocalNodePath)</NodePath>
+            <EnsureNodeInPathCmd>SETLOCAL &amp; SET PATH=$(NodePath);%PATH% &amp;</EnsureNodeInPathCmd>
+        </PropertyGroup>
+
+        <PropertyGroup Condition=" '$(WhereExitCode)' == '0' ">
+            <NodePath>$([System.IO.Path]::GetDirectoryName('$(NodeExecutable)'))</NodePath>
+        </PropertyGroup>
+        <Error Condition=" '$(NodePath)' == '' " Text="$(UnknownNodePath)" />
+        <Error Condition=" !Exists('$(NodePath)') " Text="$(InvalidGlobalNodePath) $(NodePath)" />
+    </Target>
+
+    <Target Name="EnsureNodeModules" DependsOnTargets="EnsureNode">
+        <PropertyGroup>
+            <UnknownNodeModulePath>Global node modules not found. Please set the 'LocalNodeModulePath' property in your project file.</UnknownNodeModulePath>
+            <InvalidGlobalNodeModulePath>Invalid global node module path.</InvalidGlobalNodeModulePath>
+            <InvalidLocalNodeModulePath>Invalid local node module path.</InvalidLocalNodeModulePath>
+            <NpmGetPrefix>""$(NodePath)\npm.cmd" config get prefix"</NpmGetPrefix>
+        </PropertyGroup>
+        <Message Text="Ensuring global npm path" Importance="low" />
+
+        <Error Condition=" '$(LocalNodeModulePath)' != '' AND !Exists('$(LocalNodeModulePath)')" Text="'$(InvalidLocalNodeModulePath)'" />
+        <PropertyGroup Condition=" '$(LocalNodeModulePath)' != '' ">
+            <NodeModulePath>$(LocalNodeModulePath)</NodeModulePath>
+        </PropertyGroup>
+
+        <Exec Command="$(WINDIR)\system32\cmd.exe /C $(NpmGetPrefix)"
+            ContinueOnError="true"
+            IgnoreExitCode="true"
+            ConsoleToMsBuild="true"
+            Condition=" !Exists('$(NodeModulePath)') ">
+            <Output TaskParameter="ExitCode" PropertyName="NpmExitCode"/>
+            <Output TaskParameter="ConsoleOutput" PropertyName="NodeModulePath" />
+        </Exec>
+        <Error Condition=" '$(NodeModulePath)' == '' " Text="$(UnknownNodeModulePath)" />
+        <Error Condition=" !Exists('$(NodeModulePath)') " Text="$(InvalidGlobalNodeModulePath) $(NodeModulePath)" />
+
+        <Message Text="Node module path is: '$(NodeModulePath)'" />
+    </Target>
 <!-- node end -->
 
 <!-- npm start -->
+<Target Name="RunNpm"
+    DependsOnTargets="EnsureNode"
+    BeforeTargets="BeforeBuild;BeforeClean"
+    Condition=" Exists('$(NpmFile)') ">
     <PropertyGroup>
-        <NpmFile>$(MSBuildProjectDirectory)\package.json</NpmFile>
-        <NpmCommand>install --loglevel error</NpmCommand>
-        <NpmWorkingDirectory>$(MSBuildProjectDirectory)</NpmWorkingDirectory>
+        <RunNpmCmd>"$(NodePath)\npm" $(NpmCommand)</RunNpmCmd>
     </PropertyGroup>
+
+    <Exec Command="$(RunNpmCmd)"
+        WorkingDirectory="$(NpmWorkingDirectory)"
+        CustomErrorRegularExpression="(ERR!.*is not in the npm registry|Usage:)"/>
+</Target>
 <!-- npm end -->
 
 <!-- bower start -->
+<Target Name="EnsureBower">
     <PropertyGroup>
-        <BowerFile>$(MSBuildProjectDirectory)\bower.json</BowerFile>
-        <BowerCommand>install</BowerCommand>
+        <BowerNotFoundError>Bower module not found. Please install Bower in the node module path '$(NodeModulePath)'.</BowerNotFoundError>
+        <BowerExecutable>..\..\packages\MSBuild.Node.Local.1.0.0\bower.cmd</BowerExecutable>
+        <BowerExitCode>0</BowerExitCode>
     </PropertyGroup>
+    <Message Text="Ensuring Bower is installed" Importance="low" />
+
+    <Error Condition=" '$(BowerExitCode)' != '0' " Text="'$(BowerNotFoundError)'" />
+
+    <PropertyGroup>
+        <RunBowerCmd>$(EnsureNodeInPathCmd) "$(BowerExecutable)" $(BowerCommand)</RunBowerCmd>
+    </PropertyGroup>
+
+    <Message Text="Bower found: '$(BowerExecutable)'" />
+</Target>
+
+<Target Name="RunBower"
+    DependsOnTargets="EnsureNodeModules;EnsureBower"
+    BeforeTargets="BeforeBuild"
+    Condition=" Exists('$(BowerFile)') ">
+    <Exec Command="$(RunBowerCmd)"
+        CustomErrorRegularExpression="E[A-Z]+"/>
+</Target>
 <!-- bower end -->
 
 <!-- grunt start -->
+<Target Name="EnsureGrunt">
     <PropertyGroup>
-        <GruntFile>$(MSBuildProjectDirectory)\Gruntfile.js</GruntFile>
-        <GruntWorkingDirectory>$(MSBuildProjectDirectory)</GruntWorkingDirectory>
-        <GruntBuildTask>build-$(Configuration)</GruntBuildTask>
-        <GruntCleanTask></GruntCleanTask>
+        <GruntNotFoundError>Grunt module not found. Please install Grunt in the node module path '$(NodeModulePath)'.</GruntNotFoundError>
+        <GruntExecutable>$(NodeModulePath)\grunt.cmd</GruntExecutable>
+        <GruntOut>$([System.IO.Path]::GetTempFileName())</GruntOut>
+        <GruntExitCode>0</GruntExitCode>
+        <GruntTaskDeprecationWarning>The 'GruntTask' property is deprecated and will be removed in a future version. Please use 'GruntBuildTask' instead.</GruntTaskDeprecationWarning>
+    </PropertyGroup>
+    <Message Text="Ensuring Grunt is installed" Importance="low" />
 
-        <!-- Deprecated -->
-        <GruntTask></GruntTask>
+    <Exec Command="$(WINDIR)\system32\where.exe grunt"
+        ContinueOnError="true"
+        IgnoreExitCode="true"
+        ConsoleToMsBuild="true"
+        Condition=" !Exists('$(GruntExecutable)') ">
+        <Output TaskParameter="ExitCode" PropertyName="GruntExitCode" />
+        <Output TaskParameter="ConsoleOutput" PropertyName="GruntExecutable" />
+    </Exec>
+    <Error Condition=" '$(GruntExitCode)' != '0' " Text="'$(GruntNotFoundError)'" />
+
+    <!-- Deprecated Warning & Fallback -->
+    <Warning Condition=" '$(GruntTask)' != '' " Text="'$(GruntTaskDeprecationWarning)'" />
+    <PropertyGroup Condition=" '$(GruntTask)' != '' ">
+        <GruntBuildTask>$(GruntTask)</GruntBuildTask>
     </PropertyGroup>
-    <PropertyGroup Condition="Exists('$(MSBuildProjectDirectory)\Gruntfile.coffee')">
-        <GruntFile>$(MSBuildProjectDirectory)\Gruntfile.coffee</GruntFile>
+
+    <PropertyGroup>
+        <RunGruntBuildCmd>$(EnsureNodeInPathCmd) "$(GruntExecutable)" --no-color --gruntfile "$(GruntFile)" "$(GruntBuildTask)" > "$(GruntOut)"</RunGruntBuildCmd>
+        <RunGruntCleanCmd>$(EnsureNodeInPathCmd) "$(GruntExecutable)" --no-color --gruntfile "$(GruntFile)" "$(GruntCleanTask)" > "$(GruntOut)"</RunGruntCleanCmd>
+
+        <GruntBuildTaskError>Error running grunt task '$(GruntBuildTask)'. See Warnings for details.</GruntBuildTaskError>
+        <GruntCleanTaskError>Error running grunt task '$(GruntCleanTask)'. See Warnings for details.</GruntCleanTaskError>
     </PropertyGroup>
+
+    <Message Text="Grunt found: '$(GruntExecutable)'" />
+</Target>
+
+<Target Name="RunGruntBuild"
+    DependsOnTargets="EnsureNodeModules;EnsureGrunt"
+    BeforeTargets="Build"
+    Condition=" Exists('$(GruntFile)') AND '$(GruntBuildTask)' != '' " >
+    <Exec Command="$(RunGruntBuildCmd)"
+        ContinueOnError="true"
+        IgnoreExitCode="true"
+        WorkingDirectory="$(GruntWorkingDirectory)" >
+        <Output TaskParameter="ExitCode" PropertyName="GruntExitCode"/>
+    </Exec>
+    <ReadLinesFromFile File="$(GruntOut)">
+        <Output TaskParameter="Lines" ItemName="GruntOutLines"/>
+    </ReadLinesFromFile>
+    <Delete Files="$(GruntOut)"/>
+    <Warning Condition=" '$(GruntExitCode)' != '0' " Text="%(GruntOutLines.Identity)" />
+    <Error Condition=" '$(GruntExitCode)' != '0' " Text="$(GruntBuildTaskError)" />
+</Target>
+
+<Target Name="RunGruntClean"
+    DependsOnTargets="EnsureNodeModules;EnsureGrunt"
+    AfterTargets="Clean"
+    Condition=" Exists('$(GruntFile)') AND '$(GruntCleanTask)' != '' " >
+    <Exec Command="$(RunGruntCleanCmd)"
+        ContinueOnError="true"
+        IgnoreExitCode="true"
+        WorkingDirectory="$(GruntWorkingDirectory)" >
+        <Output TaskParameter="ExitCode" PropertyName="GruntExitCode"/>
+    </Exec>
+    <ReadLinesFromFile File="$(GruntOut)">
+        <Output TaskParameter="Lines" ItemName="GruntOutLines"/>
+    </ReadLinesFromFile>
+    <Delete Files="$(GruntOut)"/>
+    <Warning Condition=" '$(GruntExitCode)' != '0' " Text="%(GruntOutLines.Identity)" />
+    <Error Condition=" '$(GruntExitCode)' != '0' " Text="$(GruntCleanTaskError)" />
+</Target>
 <!-- grunt end -->
 <!-- vim: set ft=xml sw=4 :-->
 </Project>
