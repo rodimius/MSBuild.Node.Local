@@ -6,8 +6,8 @@
 
 <!-- node start -->
     <PropertyGroup>
-        <GlobalNodePath>$(MSBuildProjectDirectory)\..\..\$(PackageName)\</GlobalNodePath>
-        <GlobalNodeModulePath>$(MSBuildProjectDirectory)\..\..\$(PackageName)\</GlobalNodeModulePath>
+        <GlobalNodePath>$(MSBuildThisFileDirectory)..\</GlobalNodePath>
+        <GlobalNodeModulePath>$(MSBuildThisFileDirectory)..\</GlobalNodeModulePath>
         <LocalNodePath></LocalNodePath>
         <LocalNodeModulePath></LocalNodeModulePath>
         <NodePath>$(GlobalNodePath)</NodePath>

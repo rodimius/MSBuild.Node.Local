@@ -48,7 +48,7 @@
 <!-- npm start -->
 <Target Name="RunNpm"
     DependsOnTargets="EnsureNode"
-    BeforeTargets="BeforeBuild;BeforeClean"
+    BeforeTargets="BeforeBuild"
     Condition=" Exists('$(NpmFile)') ">
     <PropertyGroup>
         <RunNpmCmd>"$(NodePath)\npm" $(NpmCommand)</RunNpmCmd>
@@ -58,13 +58,21 @@
         WorkingDirectory="$(NpmWorkingDirectory)"
         CustomErrorRegularExpression="(ERR!.*is not in the npm registry|Usage:)"/>
 </Target>
+
+<Target Name="DeleteNodeModules"
+    DependsOnTargets="EnsureNode"
+    BeforeTargets="BeforeClean"
+    Condition=" Exists('$(NpmFile)') ">
+    <Exec Command="$(GlobalNodeModulePath)\.bin\rimraf.cmd $(MSBuildProjectDirectory)\node_modules" />
+    <Exec Command=".bin\rimraf.cmd node_modules/*" />
+</Target>
 <!-- npm end -->
 
 <!-- bower start -->
 <Target Name="EnsureBower">
     <PropertyGroup>
         <BowerNotFoundError>Bower module not found. Please install Bower in the node module path '$(NodeModulePath)'.</BowerNotFoundError>
-        <BowerExecutable>..\..\packages\$(GlobalNodeModulePath)\.bin\bower.cmd</BowerExecutable>
+        <BowerExecutable>$(MSBuildProjectDirectory)\.bin\bower.cmd</BowerExecutable>
         <BowerExitCode>0</BowerExitCode>
     </PropertyGroup>
     <Message Text="Ensuring Bower is installed" Importance="low" />
@@ -72,7 +80,7 @@
     <Error Condition=" '$(BowerExitCode)' != '0' " Text="'$(BowerNotFoundError)'" />
 
     <PropertyGroup>
-        <RunBowerCmd>$(EnsureNodeInPathCmd) "$(BowerExecutable)" $(BowerCommand)</RunBowerCmd>
+        <RunBowerCmd>"$(BowerExecutable)" $(BowerCommand)</RunBowerCmd>
     </PropertyGroup>
 
     <Message Text="Bower found: '$(BowerExecutable)'" />
