@@ -13,4 +13,10 @@
     <dependencies>
     </dependencies>
   </metadata>
+  <files>
+    <file src="node.exe" target="lib\node.exe" />
+    <file src="build\*" target="build" />
+    <file src="content\**" target="content" />
+    <file src="node_modules\**" target="lib\node_modules" />
+  </files>
 </package>
