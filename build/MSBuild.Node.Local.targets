@@ -63,7 +63,6 @@
     DependsOnTargets="EnsureNode"
     BeforeTargets="BeforeClean"
     Condition=" Exists('$(NpmFile)') ">
-    <Exec Command="$(GlobalNodeModulePath)\node_bin\rimraf.cmd $(MSBuildProjectDirectory)\node_modules" />
     <Exec Command="node_bin\rimraf.cmd node_modules/*" />
 </Target>
 <!-- npm end -->
@@ -72,7 +71,7 @@
 <Target Name="EnsureBower">
     <PropertyGroup>
         <BowerNotFoundError>Bower module not found. Please install Bower in the node module path '$(NodeModulePath)'.</BowerNotFoundError>
-        <BowerExecutable>$(MSBuildProjectDirectory)\node_bin\bower.cmd</BowerExecutable>
+        <BowerExecutable>$(NodeGlobalBinPath)bower.cmd</BowerExecutable>
         <BowerExitCode>0</BowerExitCode>
     </PropertyGroup>
     <Message Text="Ensuring Bower is installed" Importance="low" />
@@ -99,7 +98,7 @@
 <Target Name="EnsureGrunt">
     <PropertyGroup>
         <GruntNotFoundError>Grunt module not found. Please install Grunt in the node module path '$(NodeModulePath)'.</GruntNotFoundError>
-        <GruntExecutable>$(GloabalNodeModulePath)\node_bin\grunt.cmd</GruntExecutable>
+        <GruntExecutable>$(NodeGlobalBinPath)grunt.cmd</GruntExecutable>
         <GruntOut>$([System.IO.Path]::GetTempFileName())</GruntOut>
         <GruntExitCode>0</GruntExitCode>
         <GruntTaskDeprecationWarning>The 'GruntTask' property is deprecated and will be removed in a future version. Please use 'GruntBuildTask' instead.</GruntTaskDeprecationWarning>

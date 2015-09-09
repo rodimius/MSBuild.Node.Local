@@ -2,12 +2,14 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 <PropertyGroup>
   <PackageName>MSBuild.Node.Local.1.0.0</PackageName>
+  <NodeToolsPath>$(MSBuildThisFileDirectory)..\tools\</NodeToolsPath>
+  <NodeGlobalBinPath>$(MSBuildThisFileDirectory)..\tools\node_modules\.bin\</NodeGlobalBinPath>
 </PropertyGroup>
 
 <!-- node start -->
     <PropertyGroup>
-        <GlobalNodePath>$(MSBuildThisFileDirectory)..\</GlobalNodePath>
-        <GlobalNodeModulePath>$(MSBuildThisFileDirectory)..\</GlobalNodeModulePath>
+        <GlobalNodePath>$(NodeToolsPath)</GlobalNodePath>
+        <GlobalNodeModulePath>$(NodeToolsPath)\node_modules</GlobalNodeModulePath>
         <LocalNodePath></LocalNodePath>
         <LocalNodeModulePath></LocalNodeModulePath>
         <NodePath>$(GlobalNodePath)</NodePath>
