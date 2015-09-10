@@ -29,7 +29,7 @@
             <UnknownNodeModulePath>Global node modules not found. Please set the 'LocalNodeModulePath' property in your project file.</UnknownNodeModulePath>
             <InvalidGlobalNodeModulePath>Invalid global node module path.</InvalidGlobalNodeModulePath>
             <InvalidLocalNodeModulePath>Invalid local node module path.</InvalidLocalNodeModulePath>
-            <NpmGetPrefix>""$(NodePath)\npm.cmd" config get prefix"</NpmGetPrefix>
+            <NpmGetPrefix>""$(NodeGlobalBinPath)npm.cmd" config get prefix"</NpmGetPrefix>
         </PropertyGroup>
         <Message Text="Ensuring global npm path" Importance="low" />
 
@@ -51,7 +51,7 @@
     BeforeTargets="BeforeBuild"
     Condition=" Exists('$(NpmFile)') ">
     <PropertyGroup>
-        <RunNpmCmd>"$(NodePath)\npm" $(NpmCommand)</RunNpmCmd>
+        <RunNpmCmd>"$(NodeGlobalBinPath)npm" $(NpmCommand)</RunNpmCmd>
     </PropertyGroup>
 
     <Exec Command="$(RunNpmCmd)"
@@ -63,7 +63,7 @@
     DependsOnTargets="EnsureNode"
     BeforeTargets="BeforeClean"
     Condition=" Exists('$(NpmFile)') ">
-    <Exec Command="node_bin\rimraf.cmd node_modules/*" />
+    <Exec Command="$(NodeGlobalBinPath)rimraf.cmd node_modules/*" />
 </Target>
 <!-- npm end -->
 
