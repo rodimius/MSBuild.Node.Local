@@ -1,8 +1,18 @@
-rimraf node_modules\*
+Param(
+		[switch]$Clean
+     )
 
-rimraf node_modules\.bin\*
+if ( $Clean )
+{
+	rimraf node_modules\*
+
+	rimraf node_modules\.bin\*
+}
 
 npm install
 npm dedup
 
-nuget pack .\MSBuild.Node.Local.nuspec -NoDefaultExcludes
+if ( !$NoPack )
+{
+	nuget pack .\MSBuild.Node.Local.nuspec -NoDefaultExcludes
+}
