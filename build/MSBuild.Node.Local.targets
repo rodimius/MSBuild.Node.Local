@@ -29,7 +29,7 @@
             <UnknownNodeModulePath>Global node modules not found. Please set the 'LocalNodeModulePath' property in your project file.</UnknownNodeModulePath>
             <InvalidGlobalNodeModulePath>Invalid global node module path.</InvalidGlobalNodeModulePath>
             <InvalidLocalNodeModulePath>Invalid local node module path.</InvalidLocalNodeModulePath>
-            <NpmGetPrefix>""$(NodeBinPath)npm.cmd" config get prefix"</NpmGetPrefix>
+            <NpmGetPrefix>"$(NodeBinPath)npm.cmd config get prefix"</NpmGetPrefix>
         </PropertyGroup>
         <Message Text="Ensuring global npm path" Importance="low" />
 
@@ -52,13 +52,13 @@
     Condition=" Exists('$(NpmFile)') ">
     <PropertyGroup>
         <RunNpmCmd>"$(NodeBinPath)npm" $(NpmCommand)</RunNpmCmd>
-        <RunFlattenCmd>"$(NodeGlobalBinPath)flatten-packages"</RunFlattenCmd>
+        <RunDedupeCmd>"$(NodeBinPath)npm" dedupe</RunDedupeCmd>
     </PropertyGroup>
 
     <Exec Command="$(RunNpmCmd)"
         WorkingDirectory="$(NpmWorkingDirectory)"
         CustomErrorRegularExpression="(ERR!.*is not in the npm registry|Usage:)"/>
-    <Exec Command="$(RunFlattenCmd)"
+    <Exec Command="$(RunDedupeCmd)"
         WorkingDirectory="$(NpmWorkingDirectory)"/>
 </Target>
 

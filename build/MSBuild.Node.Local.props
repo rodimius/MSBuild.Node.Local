@@ -4,6 +4,7 @@
   <PackageName>MSBuild.Node.Local.1.0.0</PackageName>
   <NodeToolsPath>$(MSBuildThisFileDirectory)..\tools\</NodeToolsPath>
   <NodeGlobalBinPath>$(MSBuildThisFileDirectory)..\tools\node_modules\.bin\</NodeGlobalBinPath>
+  <NodeBinPath>$(MSBuildProjectDirectory)\node_bin\</NodeBinPath>
 </PropertyGroup>
 
 <!-- node start -->
