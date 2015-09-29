@@ -20,7 +20,6 @@
 
 <!-- npm start -->
     <PropertyGroup>
-        <NpmFile>$(MSBuildProjectDirectory)\package.json</NpmFile>
         <NpmCommand>install --loglevel error</NpmCommand>
         <NpmWorkingDirectory>$(MSBuildProjectDirectory)</NpmWorkingDirectory>
     </PropertyGroup>

@@ -1,21 +1,44 @@
 Param(
-		[switch]$Clean,
+		[parameter(Position=0)][String]$Verb,
 		[switch]$NoPack
      )
 
-if ( $Clean )
+Function Build()
+{
+	npm install
+	npm dedup
+}
+
+Function Pack()
+{
+	nuget pack .\MSBuild.Node.Local.nuspec -NoDefaultExcludes
+}
+
+Function Clean()
 {
 	rimraf node_modules\*
 
 	rimraf node_modules\.bin\*
-
-	Exit
 }
 
-npm install
-npm dedup
-
-if ( !($NoPack) )
+Switch ($Verb)
 {
-	nuget pack .\MSBuild.Node.Local.nuspec -NoDefaultExcludes
+	"clean"
+	{
+		Clean
+	}
+	"rebuild"
+	{
+		Clean
+		Build
+	}
+	default 
+	{
+		Build
+		if ( !($NoPack) )
+		{
+			Pack
+		}
+	}
 }
+

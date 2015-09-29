@@ -37,6 +37,11 @@
         <PropertyGroup Condition=" '$(LocalNodeModulePath)' != '' ">
             <NodeModulePath>$(LocalNodeModulePath)</NodeModulePath>
         </PropertyGroup>
+        <Exec ConsoleToMSBuild="true"
+          Command="$(NodeBinPath)npm root">
+          <Output TaskParameter="ConsoleOutput" PropertyName="NpmRoot" />
+        </Exec>
+        <Message Text="NPM Root is : $(NpmRoot)" />
 
         <Error Condition=" '$(NodeModulePath)' == '' " Text="$(UnknownNodeModulePath)" />
         <Error Condition=" !Exists('$(NodeModulePath)') " Text="$(InvalidGlobalNodeModulePath) $(NodeModulePath)" />
@@ -48,8 +53,7 @@
 <!-- npm start -->
 <Target Name="RunNpm"
     DependsOnTargets="EnsureNode"
-    BeforeTargets="BeforeBuild"
-    Condition=" Exists('$(NpmFile)') ">
+    BeforeTargets="BeforeBuild">
     <PropertyGroup>
         <RunNpmCmd>"$(NodeBinPath)npm" $(NpmCommand)</RunNpmCmd>
         <RunDedupeCmd>"$(NodeBinPath)npm" dedupe</RunDedupeCmd>
@@ -63,11 +67,11 @@
 </Target>
 
 <Target Name="DeleteNodeModules"
-    DependsOnTargets="EnsureNode"
+    DependsOnTargets="EnsureNode;EnsureNodeModules"
     BeforeTargets="BeforeClean"
-    Condition=" Exists('$(NpmFile)') ">
-    <Exec Command="$(NodeGlobalBinPath)rimraf.cmd node_modules/*" />
-    <Exec Command="$(NodeGlobalBinPath)rimraf.cmd node_modules/.bin/*" />
+    Condition=" Exists('$(NpmRoot)') ">
+    <Exec Command="$(NodeGlobalBinPath)rimraf.cmd $(NpmRoot)/*" />
+    <Exec Command="$(NodeGlobalBinPath)rimraf.cmd $(NpmRoot)/.bin/*" />
 </Target>
 <!-- npm end -->
 
@@ -102,7 +106,7 @@
 <Target Name="EnsureGrunt">
     <PropertyGroup>
         <GruntNotFoundError>Grunt module not found. Please install Grunt in the node module path '$(NodeModulePath)'.</GruntNotFoundError>
-        <GruntExecutable>$(NodeGlobalBinPath)grunt.cmd</GruntExecutable>
+        <GruntExecutable>$(NodeBinPath)grunt.cmd</GruntExecutable>
         <GruntOut>$([System.IO.Path]::GetTempFileName())</GruntOut>
         <GruntExitCode>0</GruntExitCode>
         <GruntTaskDeprecationWarning>The 'GruntTask' property is deprecated and will be removed in a future version. Please use 'GruntBuildTask' instead.</GruntTaskDeprecationWarning>
