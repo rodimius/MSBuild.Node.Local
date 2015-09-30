@@ -37,11 +37,6 @@
         <PropertyGroup Condition=" '$(LocalNodeModulePath)' != '' ">
             <NodeModulePath>$(LocalNodeModulePath)</NodeModulePath>
         </PropertyGroup>
-        <Exec ConsoleToMSBuild="true"
-          Command="$(NodeBinPath)npm root">
-          <Output TaskParameter="ConsoleOutput" PropertyName="NpmRoot" />
-        </Exec>
-        <Message Text="NPM Root is : $(NpmRoot)" />
 
         <Error Condition=" '$(NodeModulePath)' == '' " Text="$(UnknownNodeModulePath)" />
         <Error Condition=" !Exists('$(NodeModulePath)') " Text="$(InvalidGlobalNodeModulePath) $(NodeModulePath)" />
@@ -67,9 +62,15 @@
 </Target>
 
 <Target Name="DeleteNodeModules"
-    DependsOnTargets="EnsureNode;EnsureNodeModules"
-    BeforeTargets="BeforeClean"
-    Condition=" Exists('$(NpmRoot)') ">
+    DependsOnTargets="EnsureNodeModules"
+    BeforeTargets="BeforeClean" >
+
+    <Exec ConsoleToMSBuild="true"
+      Command="$(NodeBinPath)npm root">
+      <Output TaskParameter="ConsoleOutput" PropertyName="NpmRoot" />
+    </Exec>
+    <Message Text="NPM Root is : $(NpmRoot)" />
+
     <Exec Command="$(NodeGlobalBinPath)rimraf.cmd $(NpmRoot)/*" />
     <Exec Command="$(NodeGlobalBinPath)rimraf.cmd $(NpmRoot)/.bin/*" />
 </Target>

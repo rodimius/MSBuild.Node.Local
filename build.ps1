@@ -6,7 +6,6 @@ Param(
 Function Build()
 {
 	npm install
-	npm dedup
 }
 
 Function Pack()
@@ -21,24 +20,55 @@ Function Clean()
 	rimraf node_modules\.bin\*
 }
 
+Function Write-Target($target)
+{
+	Write-Host ("Target: " + $Verb)
+}
+
+Function Write-Completed($target)
+{
+	Write-Host ("Completed: " + $Verb)
+}
+
+Function Wrap-Target{
+	Param([scriptblock]$targetFunction)
+
+	Write-Target($Verb)
+	$targetFunction.Invoke()
+}
+
 Switch ($Verb)
 {
 	"clean"
 	{
-		Clean
+		Wrap-Target -targetFunction $function:Clean
 	}
 	"rebuild"
 	{
+		Write-Target($Verb)
 		Clean
 		Build
+		Write-Completed($Verb)
 	}
-	default 
+	"pack"
 	{
-		Build
-		if ( !($NoPack) )
+		Wrap-Target -targetFunction $function:Pack
+	}
+	default
+	{
+		if ( $Verb )
+		{ Write-Host ( $Verb + " is not a valid target") }
+		else
 		{
-			Pack
+			Write-Target($Verb)
+			Build
+			if ( !($NoPack) )
+			{
+				Write-Target("Pack")
+				Pack
+				Write-Completed("Pack")
+			}
+			Write-Completed($Verb)
 		}
 	}
 }
-

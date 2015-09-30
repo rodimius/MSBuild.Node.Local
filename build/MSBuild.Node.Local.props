@@ -5,6 +5,7 @@
   <NodeToolsPath>$(MSBuildThisFileDirectory)..\tools\</NodeToolsPath>
   <NodeGlobalBinPath>$(MSBuildThisFileDirectory)..\tools\node_modules\.bin\</NodeGlobalBinPath>
   <NodeBinPath>$(MSBuildProjectDirectory)\node_bin\</NodeBinPath>
+  <NpmRoot>$(MSBuildProjectDirectory)\node_modules</NpmRoot>
 </PropertyGroup>
 
 <!-- node start -->
