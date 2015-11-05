@@ -35,6 +35,7 @@ Function Wrap-Target{
 
 	Write-Target($Verb)
 	$targetFunction.Invoke()
+	Write-Completed($Verb)
 }
 
 Switch ($Verb)
@@ -60,15 +61,13 @@ Switch ($Verb)
 		{ Write-Host ( $Verb + " is not a valid target") }
 		else
 		{
-			Write-Target($Verb)
-			Build
+			$Verb = "Build"
+			Wrap-Target -targetFunction $function:Build
 			if ( !($NoPack) )
 			{
-				Write-Target("Pack")
-				Pack
-				Write-Completed("Pack")
+				$Verb = "Pack"
+				Wrap-Target -targetFunction $function:Pack
 			}
-			Write-Completed($Verb)
 		}
 	}
 }

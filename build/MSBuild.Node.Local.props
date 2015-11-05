@@ -21,7 +21,7 @@
 
 <!-- npm start -->
     <PropertyGroup>
-        <NpmCommand>install --loglevel error</NpmCommand>
+        <NpmCommand>install --loglevel error --no-optional --skip-installed</NpmCommand>
         <NpmWorkingDirectory>$(MSBuildProjectDirectory)</NpmWorkingDirectory>
     </PropertyGroup>
 <!-- npm end -->

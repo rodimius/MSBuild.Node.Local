@@ -51,19 +51,15 @@
     BeforeTargets="BeforeBuild">
     <PropertyGroup>
         <RunNpmCmd>"$(NodeBinPath)npm" $(NpmCommand)</RunNpmCmd>
-        <RunDedupeCmd>"$(NodeBinPath)npm" dedupe</RunDedupeCmd>
     </PropertyGroup>
 
     <Exec Command="$(RunNpmCmd)"
         WorkingDirectory="$(NpmWorkingDirectory)"
         CustomErrorRegularExpression="(ERR!.*is not in the npm registry|Usage:)"/>
-    <Exec Command="$(RunDedupeCmd)"
-        WorkingDirectory="$(NpmWorkingDirectory)"/>
 </Target>
 
 <Target Name="DeleteNodeModules"
-    DependsOnTargets="EnsureNodeModules"
-    BeforeTargets="BeforeClean" >
+    DependsOnTargets="EnsureNodeModules" >
 
     <Exec ConsoleToMSBuild="true"
       Command="$(NodeBinPath)npm root">
@@ -80,7 +76,7 @@
 <Target Name="EnsureBower">
     <PropertyGroup>
         <BowerNotFoundError>Bower module not found. Please install Bower in the node module path '$(NodeModulePath)'.</BowerNotFoundError>
-        <BowerExecutable>$(NodeGlobalBinPath)bower.cmd</BowerExecutable>
+        <BowerExecutable>$(NodeBinPath)bower.cmd</BowerExecutable>
         <BowerExitCode>0</BowerExitCode>
     </PropertyGroup>
     <Message Text="Ensuring Bower is installed" Importance="low" />
@@ -134,7 +130,7 @@
 
 <Target Name="RunGruntBuild"
     DependsOnTargets="EnsureNodeModules;EnsureGrunt"
-    BeforeTargets="Build"
+    BeforeTargets="Build;GatherAllFilesToPublish;CopyAllFilesToSingleFolderForPackage"
     Condition=" Exists('$(GruntFile)') AND '$(GruntBuildTask)' != '' " >
     <Exec Command="$(RunGruntBuildCmd)"
         ContinueOnError="true"
@@ -152,7 +148,6 @@
 
 <Target Name="RunGruntClean"
     DependsOnTargets="EnsureNodeModules;EnsureGrunt"
-    AfterTargets="Clean"
     Condition=" Exists('$(GruntFile)') AND '$(GruntCleanTask)' != '' " >
     <Exec Command="$(RunGruntCleanCmd)"
         ContinueOnError="true"
